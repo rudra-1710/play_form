@@ -3,10 +3,10 @@ import { Container, Form } from "react-bootstrap";
 import Select from "react-select";
 import "./Play_form.css"
 import usePlayFormStore from '../Zustand/PlayFormStore';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function Play_form(props) {
-
+  const navigate = useNavigate()
   const [update,setUpdate] = useState(false)  
   const initialFormData = {
     name: '',
@@ -121,15 +121,17 @@ function Play_form(props) {
 
     if(update){
         const updatedData = {...formData} ;
-const indexToUpdate =props.dataIndex
-editData(indexToUpdate, updatedData);
+        const indexToUpdate =props.dataIndex
+        editData(indexToUpdate, updatedData);
         console.log(formData)
         setFormData(initialFormData);
         setUpdate(false)
         props.removeindx(false)
+        navigate("/")
     }else{
         addData(formData)
         setFormData(initialFormData);
+        navigate("/")
     }
   };
 
