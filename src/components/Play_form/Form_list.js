@@ -56,7 +56,7 @@ function Form_list(props) {
                   ? data.courts.map((court, cindex) => (
                       <p key={cindex}>{court.label}</p>
                     ))
-                  : (data.courts && data.courts.label ? <p>{data.courts.label}</p> : 'N/A')}
+                  : (data.courts && data.courts ? <p>{data.courts}</p> : 'N/A')}
               </div>
               <div className='d-flex'>
                 <button

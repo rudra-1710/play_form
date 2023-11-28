@@ -2,16 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { Container, Form } from "react-bootstrap";
 import Select from "react-select";
 import "./Play_form.css"
+import Axios from 'axios'
 import usePlayFormStore from '../Zustand/PlayFormStore';
 import { Link, useNavigate } from 'react-router-dom';
-
+import {CreateData} from "../../Utils/Data"
 function Play_form(props) {
   const navigate = useNavigate()
   const [update,setUpdate] = useState(false)  
+  const [sports,setSports] = useState();
+  const [fileData,setFileData] = useState(null)
   const initialFormData = {
     name: '',
     address1: '',
     address2: '',
+    owner:'',
     city: '',
     state: '',
     country: '',
@@ -21,6 +25,7 @@ function Play_form(props) {
     courts: '',
     file: '',
   };
+
 
   const [formData, setFormData] = useState(initialFormData);
   useEffect(()=>{
@@ -43,6 +48,7 @@ function Play_form(props) {
     { name: 'name', type: 'text', value: formData.name, required: true },
     { name: 'address1', type: 'text', value: formData.address1, required: true },
     { name: 'address2', type: 'text', value: formData.address2, required: false },
+    { name: 'owner', type: 'text', value: formData.owner, required: true },
     { name: 'city', type: 'text', value: formData.city, required: true },
     { name: 'state', type: 'text', value: formData.state, required: true },
     { name: 'country', type: 'text', value: formData.country, required: true },
@@ -98,6 +104,7 @@ function Play_form(props) {
   const handleTimeChange = (selectedTimes) => {
     // Convert selected times to a comma-separated string
     const timeString = selectedTimes;
+    console.log(selectedTimes.value)
     setFormData((prevFormData) => ({
       ...prevFormData,
       availableTimeSlots: timeString,
@@ -106,6 +113,7 @@ function Play_form(props) {
 
   const handleSport = (selectedSports) => {
     const sportValues = selectedSports.map((sport) => sport.value);
+    setSports(sportValues)
     setFormData((prevFormData) => ({
       ...prevFormData,
       sports: selectedSports,
@@ -121,33 +129,85 @@ function Play_form(props) {
   };
   const fileHandler = (event) => {
     const file = event.target.files[0];
+    const newFileData = new FormData();
+    newFileData.append("file", file);
+    setFileData(newFileData);
     setFormData((prevFormData) => ({
       ...prevFormData,
       file: file,
     }));
-    // setSelectedFileName(file ? file.name : ''); 
   };
   
 
-  const playFormHandler = (event) => {
-    event.preventDefault()
-    console.log(formData)
+  
+const playFormHandler = (event) => {
+  event.preventDefault();
 
-    if(update){
-        const updatedData = {...formData} ;
-        const indexToUpdate =props.dataIndex
-        editData(indexToUpdate, updatedData);
-        console.log(formData)
-        setFormData(initialFormData);
-        setUpdate(false)
-        props.removeindx(false)
-        navigate("/")
-    }else{
-        addData(formData)
-        setFormData(initialFormData);
-        navigate("/")
-    }
+  const data = {
+    ...CreateData,
+    name: formData.name,
+    city: formData.city,
+    owner: formData.owner,
+    address1: formData.address1,
+    address2: formData.address2,
+    state: formData.state,
+    country: formData.country,
+    zipcode: formData.zipcode,
+    courts: formData.courts,
+    sports: sports,
+    timings: formData.availableTimeSlots.value,
   };
+  console.log(data)
+
+  if (update) {
+    const updatedData = { ...formData };
+    const indexToUpdate = props.dataIndex;
+    editData(indexToUpdate, updatedData);
+    setFormData(initialFormData);
+    setUpdate(false);
+    props.removeindx(false);
+    navigate("/");
+
+    // write for update api 
+
+    const apiUrl = "https://0a5b-2601-646-9801-51f0-f4c8-c16e-a4bc-6800.ngrok.io/api/updatePlayArea";
+
+    Axios.post(apiUrl, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      params: fileData,
+    })
+      .then(res =>{
+    addData(formData);
+    setFormData(initialFormData);
+    setFileData(null); 
+    navigate("/");
+      })
+      .catch(error => console.error('AxiosError:', error));
+
+  } else {
+
+    // write for create api code  
+    // create api is done
+    const apiUrl = "https://0a5b-2601-646-9801-51f0-f4c8-c16e-a4bc-6800.ngrok.io/api/createPlayArea";
+
+    Axios.post(apiUrl, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      params: fileData,
+    })
+      .then(res =>{
+        console.log(res)
+    addData(formData);
+    setFormData(initialFormData);
+    setFileData(null); 
+    navigate("/");
+      })
+      .catch(error => console.error('AxiosError:', error));
+  }
+};
 
   return (
     <Container>
