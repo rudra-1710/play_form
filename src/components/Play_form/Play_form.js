@@ -16,9 +16,9 @@ function Play_form(props) {
     state: '',
     country: '',
     zipcode: '',
-    availableTimeSlots: [],
+    availableTimeSlots: '',
     sports: [],
-    courts: [],
+    courts: '',
     file: '',
   };
 
@@ -37,6 +37,7 @@ function Play_form(props) {
     if(playData.length ===0 ){
         setUpdate(false)
     }
+    
 },[props.dataIndex])
   const form = [
     { name: 'name', type: 'text', value: formData.name, required: true },
@@ -45,32 +46,36 @@ function Play_form(props) {
     { name: 'city', type: 'text', value: formData.city, required: true },
     { name: 'state', type: 'text', value: formData.state, required: true },
     { name: 'country', type: 'text', value: formData.country, required: true },
-    { name: 'zipcode', type: 'text', value: formData.zipcode, required: true },
+    { name: 'zipcode', type: 'text', value: formData.zipcode, required: true }
+    
+
   ];
 
   const playTime = [
-    { value: '8:00 to 9:00', label: '8:00 to 9:00' },
-    { value: '9:00 to 10:00', label: '9:00 to 10:00' },
-    { value: '10:00 to 11:00', label: '10:00 to 11:00' },
-    { value: '11:00 to 12:00', label: '11:00 to 12:00' },
-    { value: '12:00 to 13:00', label: '12:00 to 13:00' },
-    { value: '13:00 to 14:00', label: '13:00 to 14:00' },
+    { value: 'Monday 8:00 to 19:00', label: 'Monday 8:00 to 19:00' },
+    { value: 'Tuesday 9:00 to 20:00', label: 'Tuesday 9:00 to 20:00' },
+    { value: 'Wednesday 10:00 to 18:00', label: 'Wednesday 10:00 to 18:00' },
+    { value: 'Thursday 05:00 to 16:00', label: 'Thursday 05:00 to 16:00' },
+    { value: 'Friday 10:00 to 23:00', label: 'Friday 10:00 to 23:00' },
+    { value: 'Saturday 06:00 to 20:00', label: 'Saturday 06:00 to 20:00' },
+    { value: 'Sunday 10:00 to 20:00', label: 'Sunday 10:00 to 20:00' },
+
   ];
 
   const sportsList = [
-    { value: "cricket", label: "cricket" },
-    { value: "football", label: "football" },
+    { value: "Cricket", label: "Cricket" },
+    { value: "Football", label: "Football" },
     { value: "Tennis", label: "Tennis" },
-    { value: "vollyball", label: "vollyball" },
+    { value: "Volleyball", label: "Volleyball" },
     { value: "golf", label: "golf" },
-    { value: "badminton", label: "badminton" },
+    { value: "Squash", label: "Squash" },
+    { value: "Soft ball", label: "Soft ball" },
+    { value: "Pickle ball", label: "Pickle ball" },
+    { value: "Baseball", label: "Baseball" },
+    { value: "Badminton", label: "Badminton" },
   ];
 
-  const courtList = [
-    { value: "court1", label: "court1" },
-    { value: "court2", label: "court2" },
-    { value: "court3", label: "court3" },
-  ];
+  
   
   const {addData,playData,editData} = usePlayFormStore(); 
 
@@ -82,11 +87,20 @@ function Play_form(props) {
     }));
   };
 
+  // const handleTimeChange = (selectedTimes) => {
+  //   const timeValues = selectedTimes.map((time) => time.value);
+  //   setFormData((prevFormData) => ({
+  //     ...prevFormData,
+  //     availableTimeSlots: selectedTimes,
+  //   }));
+  // };
+
   const handleTimeChange = (selectedTimes) => {
-    const timeValues = selectedTimes.map((time) => time.value);
+    // Convert selected times to a comma-separated string
+    const timeString = selectedTimes;
     setFormData((prevFormData) => ({
       ...prevFormData,
-      availableTimeSlots: selectedTimes,
+      availableTimeSlots: timeString,
     }));
   };
 
@@ -171,7 +185,7 @@ function Play_form(props) {
             options={playTime}
             onChange={handleTimeChange}
             isSearchable={true}
-            isMulti={true}
+          
             required
           />
         </Form.Group>
@@ -188,17 +202,17 @@ function Play_form(props) {
           />
         </Form.Group>
         <Form.Group className='form_size col-md-6 col-12 py-2'>
-          <Form.Label>Court</Form.Label>
-          <Select
-            value={formData.courts}
+         <Form.Label>Court</Form.Label>
+           <Form.Control
+            type="number"  // Use type "number" for numeric input
             name="courts"
-            options={courtList}
-            onChange={(e) => handleCourt(e)}
-            isSearchable={true}
-            isMulti={true}
-            required
+            value={formData.courts}
+            onChange={formHandler}
+             required
           />
-        </Form.Group>
+         </Form.Group>
+
+        
         <Form.Group className='form_size col-md-6 col-12 py-2' >
             <Form.Label>File</Form.Label>
             <Form.Control
