@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Container, Form } from "react-bootstrap";
 import Select from "react-select";
 import "./Play_form.css"
-import Axios from 'axios'
 import usePlayFormStore from '../Zustand/PlayFormStore';
 import { Link, useNavigate } from 'react-router-dom';
 import {CreateData} from "../../Utils/Data"
+import axios from 'axios';
 function Play_form(props) {
   const navigate = useNavigate()
   const [update,setUpdate] = useState(false)  
+  // const [updateData,setUpdateData] = useState(false)
   const [sports,setSports] = useState();
   const [fileData,setFileData] = useState(null)
   const initialFormData = {
@@ -29,21 +30,35 @@ function Play_form(props) {
 
   const [formData, setFormData] = useState(initialFormData);
   useEffect(()=>{
-    if(props.dataIndex){
-        setFormData(playData[props.dataIndex])
-        console.log("worked")
-        setUpdate(true)
-    }
-    if(props.dataIndex===0){
-        setFormData(playData[props.dataIndex])
-        console.log("worked")
-        setUpdate(true)
-    }
-    if(playData.length ===0 ){
-        setUpdate(false)
-    }
     
-},[props.dataIndex])
+    if(props.dataindex){
+      axios.get("https://e242-2601-646-9801-51f0-f4c8-c16e-a4bc-6800.ngrok.io/api/requestedPlayArea")
+      .then(res=>{
+        const {data} = res;
+        const updateObj = data.filter((obj)=>{
+          return(obj.id===props.dataindex)})
+        // setUpdateData(updateObj)
+        setFormData(updateObj)
+        setUpdate(true)
+      })
+    }
+  },[props.dataIndex])
+//   useEffect(()=>{
+//     if(props.dataIndex){
+//         setFormData(playData[props.dataIndex])
+//         console.log("worked")
+//         setUpdate(true)
+//     }
+//     if(props.dataIndex===0){
+//         setFormData(playData[props.dataIndex])
+//         console.log("worked")
+//         setUpdate(true)
+//     }
+//     if(playData.length ===0 ){
+//         setUpdate(false)
+//     }
+    
+// },[props.dataIndex])
   const form = [
     { name: 'name', type: 'text', value: formData.name, required: true },
     { name: 'address1', type: 'text', value: formData.address1, required: true },
@@ -83,7 +98,7 @@ function Play_form(props) {
 
   
   
-  const {addData,playData,editData} = usePlayFormStore(); 
+  // const {addData,playData,editData} = usePlayFormStore(); 
 
   const formHandler = (event) => {
     const { name, value } = event.target;
@@ -143,6 +158,21 @@ function Play_form(props) {
 const playFormHandler = (event) => {
   event.preventDefault();
 
+  const updatedata = {
+    ...formData,
+    playAreaId:props.dataIndex,
+    name: formData.name,
+    city: formData.city,
+    owner: formData.owner,
+    address1: formData.address1,
+    address2: formData.address2,
+    state: formData.state,
+    country: formData.country,
+    zipcode: formData.zipcode,
+    courts: formData.courts,
+    sports: sports,
+    timings: formData.availableTimeSlots.value,
+  };
   const data = {
     ...CreateData,
     name: formData.name,
@@ -160,9 +190,9 @@ const playFormHandler = (event) => {
   console.log(data)
 
   if (update) {
-    const updatedData = { ...formData };
-    const indexToUpdate = props.dataIndex;
-    editData(indexToUpdate, updatedData);
+    // const updatedData = { ...formData };
+    // const indexToUpdate = props.dataIndex;
+    // editData(indexToUpdate, updatedData);
     setFormData(initialFormData);
     setUpdate(false);
     props.removeindx(false);
@@ -172,27 +202,27 @@ const playFormHandler = (event) => {
 
     const apiUrl = "https://0a5b-2601-646-9801-51f0-f4c8-c16e-a4bc-6800.ngrok.io/api/updatePlayArea";
 
-    Axios.post(apiUrl, data, {
+    axios.post(apiUrl, updatedata, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
       params: fileData,
     })
       .then(res =>{
-    addData(formData);
+    // addData(formData);
     setFormData(initialFormData);
     setFileData(null); 
     navigate("/");
       })
-      .catch(error => console.error('AxiosError:', error));
+      .catch(error => console.error('axiosError:', error));
 
   } else {
 
     // write for create api code  
     // create api is done
-    const apiUrl = "https://0a5b-2601-646-9801-51f0-f4c8-c16e-a4bc-6800.ngrok.io/api/createPlayArea";
+    const apiUrl = "https://0a5b-2601-646-9801-51f0-f4c8-c16e-a4bc-6800.ngrok.io/api/createPlayArea ";
 
-    Axios.post(apiUrl, data, {
+    axios.post(apiUrl, data, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -200,12 +230,11 @@ const playFormHandler = (event) => {
     })
       .then(res =>{
         console.log(res)
-    addData(formData);
     setFormData(initialFormData);
     setFileData(null); 
     navigate("/");
       })
-      .catch(error => console.error('AxiosError:', error));
+      .catch(error => console.error('axiosError:', error));
   }
 };
 
